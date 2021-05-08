@@ -35,15 +35,10 @@ int main(int argc, char const *argv[]) {
     while(1){
         char buffer[1024] = {0};
         char message[1024] = {0};
-        
-        // printf("Hello message sent\n"
+
         valread = read( sock , buffer, 1024);
         printf("%s",buffer );
         fflush(stdout);
-
-
-
-        // if(strcmp(buffer,"Login berhasil") != 0){
         
         if(strcmp(buffer,"Filepath: ") == 0){
             
