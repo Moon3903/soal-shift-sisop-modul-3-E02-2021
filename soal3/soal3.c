@@ -16,7 +16,7 @@ typedef struct pair{
     int index;
 }pair;
 
-
+bool flag;
 char tmp[1000][1000],ex[1000][1000],start[1000],cwd[1000],dest[1000],pass[1000];
 int banyak = 0;
 bool yay[1000];
@@ -94,8 +94,56 @@ void *jalan(void *y){
 
 }
 
+void rekursi(char awl[1000],char tjan[1000]){
+    pthread_t threads[1000];
+    int total = 0;
+    char lewat[1000];
+
+    DIR *d;
+    struct dirent *dir;
+
+    d = opendir(awl);
+    if (!d){
+        return;
+    }
+    while((dir = readdir(d)) != NULL){
+        flag = 1;
+        strcpy(lewat,awl);
+        strcat(lewat,"/");
+        strcat(lewat,dir->d_name);
+        // printf("%s \t%s\n",awl,dir->d_name);
+        
+        if(!strcmp(dir->d_name,".")||!strcmp(dir->d_name,"..")){
+            continue;
+        }
+
+        if(tipe(lewat)==1){
+            rekursi(lewat,tjan);
+            // printf("MASUKK %s\n",lewat);
+            continue;
+        }
+
+        pair *tes = (pair*)malloc(sizeof(*tes));
+        strcpy(tes->awal,awl);
+        strcpy(tes->akhir,tjan);
+        strcpy(tes->fname,dir->d_name);
+        strcpy(tes->full,lewat);
+        tes->index = total;
+
+        if(pthread_create(&threads[total],NULL,jalan,(void *)tes)!=0){
+            fprintf(stderr, "error: Cannot create thread # %d\n",banyak);
+        }
+        total++;
+    }
+    closedir(d);
+    for (int i = 0; i < total; ++i){
+        if (pthread_join(threads[i], NULL)){
+        fprintf(stderr, "error: Cannot join thread # %d\n", i);
+        }
+    }
+}
+
 int main(int argc, char **argv){
-    
     pthread_t threads[1000];
 
     DIR *d;
@@ -138,53 +186,21 @@ int main(int argc, char **argv){
         }
     }
     else {
+         getcwd(cwd, sizeof(cwd));
         if(!strcmp(argv[1], "*")){
-            getcwd(cwd, sizeof(cwd));
             strcpy(start,cwd);
             strcpy(dest,cwd);
         }
         else if(!strcmp(argv[1],"-d")){
             // printf("BIG D\n");
             strcpy(start, argv[2]);
-            getcwd(cwd, sizeof(cwd));
             strcpy(dest,cwd);
         }
-        else{
-            printf("hadeh\n");
-            return 1;
+        rekursi(start,cwd);
+        if(flag){
+            printf("Direktori sukses disimpan!\n");
         }
-        d = opendir(start);
-        if (!d){
+        else
             printf("Yah, gagal disimpan :(\n");
-            return 1;
-        }
-        while((dir = readdir(d)) != NULL){
-            strcpy(pass,start);
-            strcat(pass,"/");
-            strcat(pass,dir->d_name);
-
-            if(tipe(pass)||!strcmp(dir->d_name,".")||!strcmp(dir->d_name,"..")){
-                continue;
-            }
-
-            pair *tes = (pair*)malloc(sizeof(*tes));
-            strcpy(tes->awal,start);
-            strcpy(tes->akhir,dest);
-            strcpy(tes->fname,dir->d_name);
-            strcpy(tes->full,pass);
-            tes->index = banyak;
-
-            if(pthread_create(&threads[banyak],NULL,jalan,(void *)tes)!=0){
-                fprintf(stderr, "error: Cannot create thread # %d\n",banyak);
-            }
-            banyak++;
-        }
-        closedir(d);
-        for (int i = 0; i < banyak; ++i){
-            if (pthread_join(threads[i], NULL)){
-            fprintf(stderr, "error: Cannot join thread # %d\n", i);
-            }
-        }
-        printf("Direktori sukses disimpan!\n");
     }
 }
