@@ -17,13 +17,15 @@ pthread_t tid[MAX_CLIENTS];
 
 int login = 0;
 pthread_t login_client_id;
-char id_login[100];
-char pass_login[100];
+char id_login[100] = {0};
+char pass_login[100] = {0};
 
 bool checkClose(int valread, int *new_socket){
     if(valread == 0){
         if(pthread_equal(pthread_self(), login_client_id)){
             login = 0;
+            bzero(id_login,100);
+            bzero(pass_login,100);
         }
         close(*new_socket);
         return 1;
@@ -71,7 +73,7 @@ void *play(void *arg){
 
                 FILE *fileout;
                 fileout = fopen("akun.txt", "a");
-                char concat[200];
+                char concat[200] = {0};
                 strcpy(concat,id);
                 strcat(concat,":");
                 strcat(concat,password);
@@ -101,9 +103,9 @@ void *play(void *arg){
 
                 FILE *filein;
                 filein = fopen("akun.txt","r");
-                char temp[100];
-                char tempId[100];
-                char tempPassword[100];
+                char temp[100] = {0};
+                char tempId[100] = {0};
+                char tempPassword[100] = {0};
                 bool found = false;
                 while((fscanf(filein,"%[^\n]%*c",temp)) != EOF){
                     char *token = strtok(temp,":");
@@ -195,7 +197,7 @@ void *play(void *arg){
         }else if(state == 2){
             strcpy(message, "Publisher: ");
             send(*new_socket , message , strlen(message) , 0);
-            char publisher[100];
+            char publisher[100]={0};
             valread = recv( *new_socket , publisher, 100, 0);
             if(checkClose(valread,new_socket)){
                 break;
@@ -203,7 +205,7 @@ void *play(void *arg){
 
             strcpy(message, "Tahun Publikasi: ");
             send(*new_socket , message , strlen(message) , 0);
-            char tahun[100];
+            char tahun[100]={0};
             valread = recv( *new_socket , tahun, 100, 0);
             if(checkClose(valread,new_socket)){
                 break;
@@ -211,15 +213,16 @@ void *play(void *arg){
 
             strcpy(message, "Filepath: ");
             send(*new_socket , message , strlen(message) , 0);
-            char temp[1000];
+            char temp[1000]={0};
             
-            char fileName[1024],filePath[1024];
+            char fileName[1024] = {0},filePath[1024] = {0};
             valread = recv( *new_socket , fileName, 1024, 0);
             strcpy(message, "OK");
             send(*new_socket , message , strlen(message) , 0);
 
             strcpy(filePath,"FILES/");
             strcat(filePath,fileName);
+
             do{   
                 bzero(temp,1000);
                 valread = recv( *new_socket , temp, 1000, 0);
@@ -249,12 +252,12 @@ void *play(void *arg){
             //cek db
             FILE *filein;
             filein = fopen("files.tsv","r");
-            char search[1000];
+            char search[1000] = {0};
             strcpy(search,"FILES/");
             strcat(search,parameter[1]);
 
-            char temp[1000];
-            char filepath[100];
+            char temp[1000] = {0};
+            char filepath[100] = {0};
             bool found = false;
             while((fscanf(filein,"%[^\n]%*c",temp)) != EOF){
                     char *token = strtok(temp,"\t");
@@ -305,12 +308,12 @@ void *play(void *arg){
             //cek db
             FILE *filein;
             filein = fopen("files.tsv","r");
-            char search[1000];
+            char search[1000] = {0};
             strcpy(search,"FILES/");
             strcat(search,parameter[1]);
 
-            char temp[1000];
-            char filepath[100];
+            char temp[1000] = {0};
+            char filepath[100]= {0};
             bool found = false;
             while((fscanf(filein,"%[^\n]%*c",temp)) != EOF){
                     char *token = strtok(temp,"\t");
@@ -325,7 +328,7 @@ void *play(void *arg){
             fclose(filein);
 
             if(found){
-                char fileDelete[100], newName[100];
+                char fileDelete[100] = {0}, newName[100]= {0};
                 strcpy(fileDelete,"FILES/");
                 strcat(fileDelete,parameter[1]);
                 strcpy(newName,"FILES/old-");
@@ -340,7 +343,7 @@ void *play(void *arg){
                 fclose(fileout);
 
                 while((fscanf(filein,"%[^\n]%*c",temp)) != EOF){
-                    char temp2[100];
+                    char temp2[100] = {0};
                     strcpy(temp2,temp);
                     char *token = strtok(temp,"\t");
                     if(token != NULL){
@@ -371,8 +374,8 @@ void *play(void *arg){
             FILE *filein;
             filein = fopen("files.tsv","r");
 
-            char temp[1000];
-            char filepath[100],publisher[100],tahun[100],nama[100],ekstensi[100];
+            char temp[1000] = {0};
+            char filepath[100] = {0},publisher[100] = {0},tahun[100] = {0},nama[100] = {0},ekstensi[100] = {0};
 
             while((fscanf(filein,"%[^\n]%*c",temp)) != EOF){
                     char *token = strtok(temp,"\t");
@@ -427,8 +430,8 @@ void *play(void *arg){
             FILE *filein;
             filein = fopen("files.tsv","r");
 
-            char temp[1000];
-            char filepath[100],publisher[100],tahun[100],nama[100],ekstensi[100];
+            char temp[1000] = {0};
+            char filepath[100] = {0},publisher[100] = {0},tahun[100] = {0},nama[100] = {0},ekstensi[100] = {0};
 
             while((fscanf(filein,"%[^\n]%*c",temp)) != EOF){
                     char *token = strtok(temp,"\t");

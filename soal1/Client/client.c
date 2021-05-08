@@ -43,15 +43,15 @@ int main(int argc, char const *argv[]) {
         if(strcmp(buffer,"Filepath: ") == 0){
             
 
-            char filePath[1024];
+            char filePath[1024] = {0};
             scanf("%[^\n]%*c", filePath);
 
 
             //mengirim nama file
-            char tempfilePath[1024];
+            char tempfilePath[1024] = {0};
             strcpy(tempfilePath,filePath);
             char *token = strtok(tempfilePath,"/");
-            char namaFile[1024];
+            char namaFile[1024] = {0};
             while(token){
                 strcpy(namaFile,token);
                 token = strtok(NULL,"/");
@@ -63,7 +63,7 @@ int main(int argc, char const *argv[]) {
 
             FILE *filein;
             filein = fopen(filePath,"r");
-            char temp[1000];
+            char temp[1000]={0};
             while (fgets(temp,1000,filein))
             {
                 send(sock , temp , strlen(temp) , 0 );
