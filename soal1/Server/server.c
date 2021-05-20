@@ -299,7 +299,8 @@ void *play(void *arg){
                 send(*new_socket , message , strlen(message) , 0 );
                 valread = recv( *new_socket , buffer, 1024, 0);
             }else{
-                printf("Error file not found\n");
+                strcpy(message, "Error file not found\n");
+                send(*new_socket , message , strlen(message) , 0 );
             }
             state = 1;
         }
@@ -432,19 +433,51 @@ void *play(void *arg){
 
             char temp[1000] = {0};
             char filepath[100] = {0},publisher[100] = {0},tahun[100] = {0},nama[100] = {0},ekstensi[100] = {0};
-
+            
             while((fscanf(filein,"%[^\n]%*c",temp)) != EOF){
                     char *token = strtok(temp,"\t");
-                    token = strtok(temp,"/");
-                    token = strtok(NULL,"/");
-                    strcpy(nama, token);
+                    if(token != NULL){
+                        strcpy(filepath,token);
+                        token = strtok(NULL,"\t");
+                    }
+                    if(token !=NULL){
+                        strcpy(publisher,token);
+                        token = strtok(NULL,"\t");
+                    }
 
-                    char *ret =strstr(nama,parameter[1]);
+                    if(token !=NULL){
+                        strcpy(tahun,token);
+                    }
+
+                    token = strtok(temp,"/");
+                    token = strtok(NULL,".");
+                    strcpy(nama, token);
+                    token = strtok(NULL,".");
+                    strcpy(ekstensi,token);
+
+                    char *ret =strstr(filepath,parameter[1]);
+
                     if(ret){
-                        strcpy(message,nama);
+                        strcpy(message,"Nama: ");
+                        strcat(message,nama);
+                        strcat(message,"\n");
+                        strcat(message,"Publisher: ");
+                        strcat(message,publisher);
+                        strcat(message,"\n");
+                        strcat(message,"Tahun publishing: ");
+                        strcat(message,tahun);
+                        strcat(message,"\n");
+                        strcat(message,"Ekstensi: ");
+                        strcat(message,ekstensi);
+                        strcat(message,"\n");
+                        strcat(message,"Filepath: ");
+                        strcat(message,filepath);
+                        strcat(message,"\n");
                         send(*new_socket , message , strlen(message) , 0 );
+
                         valread = recv( *new_socket , buffer, 1000, 0);
                     }
+
             }
             strcpy(message,"DONE!!!");
             send(*new_socket , message , strlen(message) , 0 );
