@@ -702,32 +702,205 @@ c).
 </br>
 
 # Soal 3
-## Penjelasan
-a).
-b).
-c).
-d).
-e).
-
 ## Penyelesaian
+Membuat program untuk mengkategorikan file berdasarkan ekstensi dan tidak case senstive.</br>
+a) jika opsi yang digunakan adalah `-f` maka semua file yang path nya di input user akan dikategorikan kedalam current working directory(cwd) program. Program akan memberi tahu jika berhasil atau gagal dengan
+```
+File x : Berhasil Dikategorikan (jika berhasil)
+File x : Sad, gagal :( (jika gagal)
+```
+dimana x adalah file keberapa yang di inputkan </br>
+b) jika menerima opsi `-d` maka akan mengkategorikan suatu folder kedalam cwd.</br>
+c) jika menerima `*` maka yang dikategorikan adalah cwd. </br>
+untuk c dan d folder berlaku rekursif yang berarti folder dalam folder tersebut juga harus dikategorikan. program juga akan memberitahukan apabila berhasil atau gagal dengan output</br>
+```
+Direktori sukses disimpan!
+Yah, gagal disimpan :(
+```
+d) jika terdapat file yang tidak memiliki ekstensi maka dikategorikan dalam folder `Unknown`. jika ada hidden file dikategorikan dalam folder `Hidden`. </br>
+e) setiap file dioperasikan oleh satu thread. </br>
+
+### Soal 3d)
+Terdapat fungsi `get_ext()` yang digunakan untuk mengambil ekstensi dari file dan mengembalikan string kosong jika tidak memiliki ekstensi. </br>
+pertama `get_ext()` akan mengambil nama file dengan mengambil `strrchr()` yang mencari posisi terakhir dari suatu char, char yang dicari sekarang adalah `/` dimana hasilnya dipastikan adalah nama file `const char *name = strrchr(filename, '/')` </br>
+lalu mencari `.` yang pertama untuk mendapat ekstensi file dengan memanfaatkan `strchr()` : `const char *dot = strchr(ok, '.');`</br>
+setelah itu disimpan kedalam string dan dijadikan lower case karena yang diminta soal tidak case sensitive
+```c
+strcpy(tmp[x], dot+1);
+for(int i=0; tmp[x][i];i++){
+    tmp[x][i]=tolower(tmp[x][i]);
+}
+```
+ada juga fungsi `is_hidden()` untuk mengetahui apakah file tersebut hidden, pada linux file hidden memiliki `.` sebagai char pertama dari nama file nya maka tinggal dicek saja nama filenya.
+```c
+bool is_hidden(const char *filename){
+    const char *name = strrchr(filename, '/');
+    if(name[1]=='.')
+        return 1;
+    return 0;
+}
+```
+### Soal 3e)
+setiap file akan dikategorikan dengan satu thread dimana akan ada beberapa string yang di passing dengan struct, thread akan membutuhkan full path, nama file, index yang dapat digunakan thread dan cwd.
+```c
+typedef struct pair{
+    char awal[1000];
+    char akhir[1000];
+    char fname[1000];
+    char full[1000];
+    int index;
+}pair;
+```
+thread juga akan memanfaatkan `rename()` untuk memindahkan file dan `mkdir()` untuk membuat folder</br>
+pertama thread akan mengambil data struct `pair *sip = (pair *) y;`</br>
+lalu di cek apakah hidden jika iya maka dikategorikan dalam folder `Hidden`
+```c
+if(is_hidden(sip->full)){
+    mkdir("Hidden",0777);
+    strcpy(tujuan,sip->akhir);
+    strcat(tujuan,"/Hidden/");
+    strcat(tujuan,sip->fname);
+    rename(sip->full,tujuan);
+}
+```
+jika tidak maka akan di cek ekstensinya degan `get_ext(sip->full,sip->index);` jika tidak memiliki ekstensi maka akan disimpan kedalam folder `Unknown`.
+```c
+if(!strcmp(tmp[sip->index],"")){
+    mkdir("Unknown",0777);
+    strcpy(tujuan,sip->akhir);
+    strcat(tujuan,"/Unknown/");
+    strcat(tujuan,sip->fname);
+    rename(sip->full,tujuan);
+}
+```
+jika memiliki ekstensi maka akan disimpan sesuai ekstensi yang sudah dijadikan lower case(tanpa merubah nama file) agar tidak case sensitive
+```c
+else{
+    mkdir(tmp[sip->index],0777);
+    strcpy(tujuan,sip->akhir);
+    strcat(tujuan,"/");
+    strcat(tujuan,tmp[sip->index]);
+    strcat(tujuan,"/");
+    strcat(tujuan,sip->fname);
+    rename(sip->full,tujuan);
+}
+```
 
 
 ### Soal 3a)
+program juga memiliki fungsi `tipe()` untuk megecek apakah filenya ada, dan apakah folder atau file.
+```c
+int tipe(const char* path) {
+    struct stat statbuf; 
+    if (stat(path, &statbuf) == -1)
+        return -1;
+    return S_ISDIR(statbuf.st_mode);
+}
+```
+ada `pthread_t threads[1000];` untuk threading nya.</br>
+pada 3a pertama dicek apakah argumen pertama adalah `-f` dengan `if(!strcmp(argv[1],"-f"))`</br>
+setelah itu mengambil cwd dengan
+```c
+getcwd(cwd, sizeof(cwd));
+strcpy(dest,cwd);
+```
+setelah itu dilooping untuk sisa argumennya `for (int i= 2; i < argc; i++)`, untuk yang berhasil atau tidak di simpan pada array `yay` dimana jika berisi 1 menandakan gagal dan 0 jika berhasil (untuk output)</br>
+cara mengecek berhasil atau gagal adalah dengan menggunakan fungsi `tipe()` dimana jika return value nya bukan 0 maka antara path tidak ditemukan atau itu adalah folder(3a hanya menerima file) dan value `yay` dijadikan 1</br>
+jika memang merupakan file maka akan di passing ke thread untuk di proses (di jelaskan di atas pada [3e](https://github.com/Moon3903/soal-shift-sisop-modul-3-E02-2021#soal-3e))</br>
+```c
+char ini[1000];
+strcpy(ini,strrchr(pass, '/'));
+
+pair *tes = (pair*)malloc(sizeof(*tes));
+strcpy(tes->akhir,dest);
+strcpy(tes->fname,ini+1);
+strcpy(tes->full,pass);
+tes->index = i;
+
+if(pthread_create(&threads[banyak],NULL,jalan,(void *)tes)!=0){
+    fprintf(stderr, "error: Cannot create thread # %d\n",banyak);
+}
+banyak++;
+```
+setelah itu menunggu semua thread selesai
+```c
+for (int i = 0; i < banyak; ++i){
+    if (pthread_join(threads[i], NULL)){
+        fprintf(stderr, "error: Cannot join thread # %d\n", i);
+    }
+}
+```
+jika sudah semua maka akan dioutput, tidak di output
+```c
+for (int i= 2; i < argc; i++){
+    if(yay[i])
+        printf("File %d : Sad, gagal :(\n",i-1);
+    else
+        printf("File %d : Berhasil Dikategorikan\n",i-1);
+}
+```
 
 
-### Soal 3b)
+### Soal 3b 3c)
+b dan c hampir sama, yang membedakan hanya lokasi folder saja, dimana pada c adalah cwd dan pada b di spesifikasi oleh user
+```c
+getcwd(cwd, sizeof(cwd));
+if(!strcmp(argv[1], "*")){
+    strcpy(start,cwd);
+    strcpy(dest,cwd);
+}
+else if(!strcmp(argv[1],"-d")){
+    strcpy(start, argv[2]);
+    strcpy(dest,cwd);
+}
+```
+setelah itu start dan dest akan dipassing ke fungsi rekursi `rekursi(start,cwd);`</br>
+jika directory yang sedang dikerjakan sekarang tidak ada maka langsung di return
+```c
+d = opendir(awl);
+if (!d){
+    return;
+}
+```
+jika ada maka akan dilooping semua file dan folder didalamnya, jika menemukan folder (di cek dengan `tipe()`) maka fungsi akan dipanggil kembali(rekursive) dengan path awal baru
+```c
+if(tipe(lewat)==1){
+    rekursi(lewat,tjan);
+    continue;
+}
+```
+jika path sekarang meruju pada file maka akan memanggil thread (di jelaskan di atas pada [3e](https://github.com/Moon3903/soal-shift-sisop-modul-3-E02-2021#soal-3e))
+```c
+pair *tes = (pair*)malloc(sizeof(*tes));
+strcpy(tes->awal,awl);
+strcpy(tes->akhir,tjan);
+strcpy(tes->fname,dir->d_name);
+strcpy(tes->full,lewat);
+tes->index = total;
 
-
-### Soal 3c)
-
-
-### Soal 3d)
-
-
-### Soal 3e)
-
-
+if(pthread_create(&threads[total],NULL,jalan,(void *)tes)!=0){
+    fprintf(stderr, "error: Cannot create thread # %d\n",banyak);
+}
+total++;
+```
+setelah selesai pada suatu folder akan dijoin
+```c
+for (int i = 0; i < total; ++i){
+    if (pthread_join(threads[i], NULL)){
+    fprintf(stderr, "error: Cannot join thread # %d\n", i);
+    }
+}
+```
 ### Hasil
+#### 3a
+![Screenshot from 2021-05-22 13-30-05](https://user-images.githubusercontent.com/62832487/119217444-76a94480-bb04-11eb-9004-4e78f2232b94.png)
+
+#### 3b
+![Screenshot from 2021-05-22 13-32-39](https://user-images.githubusercontent.com/62832487/119217491-c0922a80-bb04-11eb-8537-c69f17b677df.png)
+![Screenshot from 2021-05-22 13-32-55](https://user-images.githubusercontent.com/62832487/119217494-c5ef7500-bb04-11eb-9b94-6401a6ee5f46.png)
+
+#### 3c
+![Screenshot from 2021-05-22 13-45-14](https://user-images.githubusercontent.com/62832487/119217534-09e27a00-bb05-11eb-90b1-a4eebb016603.png)
 
 
 # Kendala
