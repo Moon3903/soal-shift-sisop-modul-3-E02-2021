@@ -735,6 +735,9 @@ for(int i=0; i<count; i++){
     }
     printf("\n");
 ```
+### Hasil
+![1](https://user-images.githubusercontent.com/57831206/119218603-63e63e00-bb0b-11eb-9e33-f7c55a7e3ceb.JPG)
+
 
 ### Soal 2b)
 ``soal2b.c`` </br>
@@ -883,9 +886,8 @@ char *argv[] = {"head", "-5", NULL};
     printf("hade\n");
 }
 ```
-
 ### Hasil
-
+![3](https://user-images.githubusercontent.com/57831206/119218697-e4a53a00-bb0b-11eb-9379-8b28d2264e4a.JPG)
 </br>
 
 # Soal 3
