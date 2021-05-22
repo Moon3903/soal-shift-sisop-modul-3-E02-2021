@@ -679,17 +679,62 @@ Saat server sudah selesai menghapus, maka akan membuka file ``running.log`` deng
 
 # Soal 2
 ## Penjelasan
-a). 
-b). 
-c). 
-
-</br>
+a) Membuat program perkalian matrix (4x3 dengan 3x6) dan menampilkan hasilnya. Matriks nantinya akan berisi angka 1-20.</br>
+b) Membuat program dengan menggunakan matriks output dari program soal2a.c menggunakan shared memory. Kemudian matriks tersebut akan dilakukan perhitungan dengan matrix baru (input user). Perhitungannya adalah setiap cel yang berasal dari matriks A menjadi angka untuk faktorial, lalu cel dari matriks B menjadi batas maksimal faktorialnya matriks.</br>
+c) Membuat program untuk mengecek 5 proses teratas apa saja yang memakan resource komputer dengan command ``“ps aux | sort -nrk 3,3 | head -5”`` </br>
 
 ## Penyelesaian
-
-
-### Soal 2a
-
+### Soal 2a)
+``soal2a.c`` </br>
+Matrix 4x3 dan 3x6
+```
+    for(int i=0;i<4;i++)
+        for(int j=0;j<3;j++)
+            scanf("%d",&a[i][j]);
+    for(int i=0;i<3;i++)
+        for(int j=0;j<6;j++)
+            scanf("%d",&b[i][j]);
+```
+Ambil input matrix 4x3 dan 3x6 menggunakan ``input()`` </br>
+Setup untuk shared memory:</br>
+```
+key_t key = 1234;
+    int *value;
+    int count = 24;
+```
+Membuat shared memory yang berukuran 24 integer </br>
+``int shmid = shmget(key, sizeof(int)*count, IPC_CREAT | 0666);``
+Cek jikalau gagal membuat shared memory </br>
+```
+if(shmid  == -1){
+        printf("error\n");
+        return 0;
+    }
+```
+Alamat dari shared memory di assign ke variable value ``value = shmat(shmid, NULL, 0);`` </br>
+Menghitung perkalian matriks dengan hasil berupa matriks 4x6
+```
+for(int i=0;i<4;i++){
+        for(int x=0;x<6;x++){
+            int tmp=0;
+            for(int j=0;j<3;j++){
+                tmp+=a[i][j]*b[j][x];
+            }
+            //dimasukkan ke shared memory (matriks 2 dimensi ke matriks 1 dimensi)
+            value[6*i+x] = tmp;
+        }
+    }
+```
+Output untuk hasil perkalian 
+```
+for(int i=0; i<count; i++){
+        if(i%6==0){
+            printf("\n");
+        }
+        printf("%d ", value[i]);
+    }
+    printf("\n");
+```
 
 ### Soal 2b)
 
