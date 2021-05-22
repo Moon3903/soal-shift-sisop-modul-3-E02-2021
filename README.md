@@ -849,6 +849,8 @@ Penjelasan main program: </br>
     // digunakan untu melakukan free shared memory
     shmctl(shmid, IPC_RMID, NULL);
 ```
+### Hasil
+![2](https://user-images.githubusercontent.com/57831206/119220904-eb857a00-bb16-11eb-8835-636de276f7ea.JPG)
 
 ### Soal 2c)
 ``soal2c.c`` </br>
