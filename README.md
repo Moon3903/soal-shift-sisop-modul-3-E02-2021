@@ -737,10 +737,152 @@ for(int i=0; i<count; i++){
 ```
 
 ### Soal 2b)
+``soal2b.c`` </br>
+Struct buat passing ke thread
+```
+typedef struct pair{
+    int a;
+    int b;
+    int index;
+}pair;
+```
+Mengambil input matriks B
+```
+void input(){
+    for(int i=0;i<24;i++)
+    scanf("%d",&b[i]);
+}
+```
+Penjelasan function ``void hitung()``: </br>
+```
+void *hitung(void *y){
+    pair *tmp = (pair *) y;
+    
+    // kalau value cell sekarang ada yang 0, maka di A atau B hasilnya juga 0
+    if(!(tmp->a) || !(tmp->b)){
+        
+	// kemudian disimpan ke hasil
+        hasil[tmp->index] = 0;
+    }
+    else{
+    
+        // looping maksimal sebanyak B kali
+        int max = tmp->b;
+	
+        // hitung faktorial dari A
+        int i = tmp->a;
+        ll total = 1;
+        while(i--){
+	
+            // hitung faktorial
+            max--;
+            total *= (i+1);
+            
+	    // jika menyentuh batas B maka break
+            if(!max){
+                break;
+            }
+	    
+            // digunakan untuk debugging
+            if(total < 0){
+                printf("overflow\n");
+            }
+        }
+	
+        // lalu disimpan ke dalam hasil
+        hasil[tmp->index] = total;
+    }
+}
+```
+Penjelasan main program: </br>
+```
+    // ambil shared memory dari soal2a.c yang merupakan matriks A
+    key_t key = 1234;
 
+    int shmid = shmget(key, sizeof(int)*24, IPC_CREAT | 0666);
+    value = shmat(shmid, NULL, 0);
+
+    // inisialisasi matriks B dan matrix hasil
+    b = (int*) malloc(24 * sizeof(int));
+    hasil = (ll*) malloc(24 * sizeof(ll));
+
+    // ambil input dari matriks B
+    input();
+
+    // buat 24 thread karena ada 24 cell dan masing-masing cell terdiri dari 1 thread
+    pthread_t threads[24];
+
+    for(int i=0;i<24;i++){
+    
+        // struct untuk passing, dimana value merupakan matriks A
+        pair *tes = (pair*)malloc(sizeof(*tes));
+        tes->a = value[i];
+        tes->b = b[i];
+        tes->index = i;
+	
+        // panggil perhitungan, lalu passing tes yang bertipedata struct
+        if(pthread_create(&threads[i],NULL,hitung,(void *)tes)!=0){
+            fprintf(stderr, "error: Cannot create thread # %d\n",i);
+        }
+    }
+
+    // tunggu join
+    for (int i = 0; i < 24; ++i){
+      if (pthread_join(threads[i], NULL))
+        {
+          fprintf(stderr, "error: Cannot join thread # %d\n", i);
+        }
+    }
+
+    // menampilkan output hasilnya
+    for(int i=0;i<24;i++){
+        if(i%6==0)
+            printf("\n");
+        printf("%lld\t",hasil[i]);
+    }
+    printf("\n");
+    shmdt(value);
+    
+    // digunakan untu melakukan free shared memory
+    shmctl(shmid, IPC_RMID, NULL);
+```
 
 ### Soal 2c)
+``soal2c.c`` </br>
+Digunakan dua pipe. First pipe untuk mengirim string input dari parent. Second pipe untuk mengirim string gabungan dari child </br>
+Cek pipe apakah fail atau tidak
+```
+	if (pipe(fd1)==-1) 
+	{ 
+		fprintf(stderr, "Pipe Failed" ); 
+		return 1; 
+	} 
+	if (pipe(fd2)==-1) 
+	{ 
+		fprintf(stderr, "Pipe Failed" ); 
+		return 1; 
+	} 
 
+	p = fork(); 
+
+	if (p < 0) 
+	{ 
+		fprintf(stderr, "fork Failed" ); 
+		return 1; 
+	} 
+```
+Simpan output argv di pipe 1 atau fd1 ``dup2(fd1[1], STDOUT_FILENO)`` </br>
+Ambil input dari pipe 1 atau fd1 ``dup2(fd1[0], STDIN_FILENO)`` </br>
+Output argv disimpan ke pipe 2 atau fd2 ``dup2(fd2[1], STDOUT_FILENO)`` </br>
+``wait(NULL)`` tunggu child hingga selesai. </br>
+Lalu, ambil input dari child yang telah disort ``dup2(fd2[0], STDIN_FILENO)`` </br>
+Menampilkan output ke layar
+```
+char *argv[] = {"head", "-5", NULL};
+    execv("/usr/bin/head", argv);
+    printf("hade\n");
+}
+```
 
 ### Hasil
 
