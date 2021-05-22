@@ -679,9 +679,9 @@ Saat server sudah selesai menghapus, maka akan membuka file ``running.log`` deng
 
 # Soal 2
 ## Penjelasan
-a). 
-b). 
-c). 
+a) Membuat program perkalian matrix (4x3 dengan 3x6) dan menampilkan hasilnya. Matriks nantinya akan berisi angka 1-20.</br>
+b) Membuat program dengan menggunakan matriks output dari program soal2a.c menggunakan shared memory. Kemudian matriks tersebut akan dilakukan perhitungan dengan matrix baru (input user). Perhitungannya adalah setiap cel yang berasal dari matriks A menjadi angka untuk faktorial, lalu cel dari matriks B menjadi batas maksimal faktorialnya matriks.</br>
+c) Membuat program untuk mengecek 5 proses teratas apa saja yang memakan resource komputer dengan command ``“ps aux | sort -nrk 3,3 | head -5”`` </br>
 
 </br>
 
