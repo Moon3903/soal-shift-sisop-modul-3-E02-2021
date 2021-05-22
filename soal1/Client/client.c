@@ -5,7 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
-#define PORT 8080
+#define PORT 1222
   
 int main(int argc, char const *argv[]) {
     struct sockaddr_in address;
@@ -35,7 +35,7 @@ int main(int argc, char const *argv[]) {
     while(1){
         char buffer[1024] = {0};
         char message[1024] = {0};
-
+        sleep(0.0001);
         valread = read( sock , buffer, 1024);
         printf("%s",buffer );
         fflush(stdout);
