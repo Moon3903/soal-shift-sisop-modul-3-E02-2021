@@ -747,7 +747,7 @@ for(int i=0; i<count; i++){
 </br>
 
 # Soal 3
-## Penyelesaian
+## Penjelasan
 Membuat program untuk mengkategorikan file berdasarkan ekstensi dan tidak case senstive.</br>
 a) jika opsi yang digunakan adalah `-f` maka semua file yang path nya di input user akan dikategorikan kedalam current working directory(cwd) program. Program akan memberi tahu jika berhasil atau gagal dengan
 ```
@@ -765,6 +765,7 @@ Yah, gagal disimpan :(
 d) jika terdapat file yang tidak memiliki ekstensi maka dikategorikan dalam folder `Unknown`. jika ada hidden file dikategorikan dalam folder `Hidden`. </br>
 e) setiap file dioperasikan oleh satu thread. </br>
 
+## Penyelesaian
 ### Soal 3d)
 Terdapat fungsi `get_ext()` yang digunakan untuk mengambil ekstensi dari file dan mengembalikan string kosong jika tidak memiliki ekstensi. </br>
 pertama `get_ext()` akan mengambil nama file dengan mengambil `strrchr()` yang mencari posisi terakhir dari suatu char, char yang dicari sekarang adalah `/` dimana hasilnya dipastikan adalah nama file `const char *name = strrchr(filename, '/')` </br>
