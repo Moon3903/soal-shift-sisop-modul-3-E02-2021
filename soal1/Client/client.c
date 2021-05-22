@@ -74,7 +74,7 @@ int main(int argc, char const *argv[]) {
             send(sock , message , strlen(message) , 0 );
 
         }else if(strcmp(buffer,"Preparing Download") == 0){
-            printf("Masuk\n");
+            printf("\n");
             bzero(message,1024);
             strcpy(message, "OK1");
             send(sock , message , strlen(message) , 0);
