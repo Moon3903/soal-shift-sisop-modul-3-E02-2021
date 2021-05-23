@@ -889,7 +889,7 @@ char *argv[] = {"head", "-5", NULL};
 }
 ```
 ### Hasil
-![3](https://user-images.githubusercontent.com/57831206/119218697-e4a53a00-bb0b-11eb-9379-8b28d2264e4a.JPG)
+![3 rev](https://user-images.githubusercontent.com/57831206/119247871-75851f80-bbb7-11eb-8816-ffdfed5ac5a3.JPG)
 </br>
 
 # Soal 3
